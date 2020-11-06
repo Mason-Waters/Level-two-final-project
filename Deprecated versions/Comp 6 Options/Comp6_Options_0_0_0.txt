@@ -1,0 +1,1 @@
+Component 6 has been absorbed into component 1. This is because the whole point of component 6 was to loop over other components, as was component 1.
