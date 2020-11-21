@@ -143,7 +143,7 @@ def data_into_database():
 # main routine-----------------------------------------------------------------
 if __name__ == "__main__":  # testing routine
     conn = Comp2_Database_backend_0_1_1.connect_to_database()
-    """#testdatainputcode
+    #testdatainputcode
     test_data = [
         [56, 'jim', [["vase", "Jim", "physical"],
                      ["bloodstain", "Bob", "physical"],
@@ -166,8 +166,8 @@ if __name__ == "__main__":  # testing routine
         i[2] = str(i[2])
     cursor = conn.cursor()
     cursor.executemany("""
-#INSERT INTO scores VALUES (?,?,?)""", test_data)
-    #conn.commit()  # saaaaaaaave teeeeeeest daaaaataaaaa
+INSERT INTO scores VALUES (?,?,?)""", test_data)
+    conn.commit()  # saaaaaaaave teeeeeeest daaaaataaaaa
     c = conn.cursor()#temp
     c.execute("SELECT * FROM scores")
     r = c.fetchall()

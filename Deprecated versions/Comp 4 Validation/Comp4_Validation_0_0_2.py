@@ -78,6 +78,6 @@ def validate():
 
 # main routine-----------------------------------------------------------------
 if __name__ == "__main__":  # testing routine
-    print(type_check(1, tuple, True))
+    print(type_check(4, int, True))
 
 # end main routine-------------------------------------------------------------

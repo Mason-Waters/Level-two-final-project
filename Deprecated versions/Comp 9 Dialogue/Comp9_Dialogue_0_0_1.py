@@ -78,6 +78,6 @@ if __name__ == "__main__":  # is this code being called directly?
     person = ["Jim", True, "nervous"]
     evidence = [["vase", "Jim"]]
     #print(generate_response(person))
-    display_dialogue(person, evidence)
+    display_dialogue(person, 0)
 
 # end main routine-------------------------------------------------------------

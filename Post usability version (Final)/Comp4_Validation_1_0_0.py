@@ -2,16 +2,13 @@
     Author: Mason Waters
     Date: 23/10/20
     Desc: Validation and safe user input
-    Version: 0.0.3
-    Improvements over previous trials:
-        Well... it works?
-    Disadvantages towards previous trials:
-        It's all very inefficient and nigh unreadable. I wouldn't be surprised
-        if there are a mass of bugs under the surface. There are default values
-        that literally never occur, because above them there are higher level
-        default values. The code isn't as well commented as I would like.
-        The number check doesn't check for length. So on and so forth.
-        Honestly, this code is just... bad.
+    Version: 1.0.0
+    Note: This version is for integration with other components
+    Improvements:
+        None
+    Disadvantages:
+        None
+    I made no changes.
 """
 
 # libraries and imports--------------------------------------------------------
@@ -229,6 +226,6 @@ def validate(prompt, desired_type, **kwargs):
 if __name__ == "__main__":  # testing routine
     #print(type_check(1, tuple, True))
     #print(scope_check("abstraction", string_blacklist=["q"]))
-    print(validate("prompt goes here: ", int, convert=True, num_min=-2, num_max=5))
+    print(validate("prompt goes here: ", str, max_length=12))
 
 # end main routine-------------------------------------------------------------

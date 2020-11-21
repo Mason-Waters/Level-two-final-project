@@ -1,12 +1,11 @@
 """
     Author: Mason Waters
-    Date: 3/11/20
+    Date: 9/11/20
     Desc: Database frontend, handles display and whatnot
-    Version: 1.0.0
-    Note: This version is for integration with other components
+    Version: 1.1.0
     Improvements:
-        Uses comp 4 now. Saaafe
-
+        This version seeks to add the capacity to combine queries via logical
+        operators
 """
 
 # libraries and imports--------------------------------------------------------
@@ -69,7 +68,12 @@ def display(conn):
                            "\n    6: score >=" +
                            "\n    7: score <="
                            , int, convert=True, num_min=0, num_max=7)
-                     ], four.validate("What do you want to compare to?", str, string_blacklist=["~"])]#temp, will be comp 4 later. of which I am glad, because this is a hhhhaaaaaaaack. Oh, and don't forget to make "0" -> 0                                           
+                     ], four.validate("What do you want to compare to?", str)]
+# select.
+        if four.validate("Would you like to combine that with another filter? [y/n]", str, max_length=3, min_length=1) in ["y", "yes"]:
+            print("in conditional")
+        else:
+            print("not in conditional")
     query = "SELECT"
     if user_options["duplicate"] in [0]:  # they don't want duplicates
         query += " DISTINCT"  # the distinct clause ensures distinct records

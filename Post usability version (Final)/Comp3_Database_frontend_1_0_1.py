@@ -1,12 +1,11 @@
 """
     Author: Mason Waters
-    Date: 3/11/20
+    Date: 21/11/20
     Desc: Database frontend, handles display and whatnot
-    Version: 1.0.0
-    Note: This version is for integration with other components
+    Version: 1.0.1
     Improvements:
-        Uses comp 4 now. Saaafe
-
+        All numeric selections raised one :(
+        Fixed the score indent as well
 """
 
 # libraries and imports--------------------------------------------------------
@@ -29,47 +28,52 @@ def display(conn):
         None
     """
     filter = None  # this would else only be init-ed conditionally
-    user_options = {"sort": {0: None,
-                             1: "score ASC",
-                             2: "score DESC",
-                             3: "owner ASC",
-                             4: "owner DESC"}[four.validate("How do you want to" +
-                                                      " sort the scores?" +
-                                                      "\n    0: No sorting," +
-                                                      "just raw data.\n    1" +
-                                                      ": By score, ascending" +
-                                                      ".\n    2: By score," +
-                                                      " descending.\n    3: " +
-                                                      "By user, alphabetical" +
-                                                      "ly, ascending.\n    4" +
+    user_options = {"sort": {1: None,
+                             2: "score ASC",
+                             3: "score DESC",
+                             4: "owner ASC",
+                             5: "owner DESC"}[four.validate("How do you want to"
+                                                            + " sort the sco" +
+                                                      "res?\n    1: No sorti" +
+                                                      "ng, just raw data.\n " +
+                                                      "   2: By score, ascen" +
+                                                      "ding.\n    3: By scor" +
+                                                      "e, descending.\n    4" +
                                                       ": By user, alphabetic" +
-                                                      "ally, descending.", int, convert=True, num_min=0, num_max=4)],
-                    "duplicate": four.validate("Do you want to allow duplicate data?" +
-                                       "\n    0: Yes." +
-                                       "\n    1: No.", int, convert=True, num_min=0, num_max=1),
-                    "filter": four.validate("Is there anything you want to filter?" +
-                                    "\n    0: Yes." +
-                                    "\n    1: No.", int, convert=True, num_min=0, num_max=1)}  # get user input
+                                                      "ally, ascending.\n   " +
+                                                      " 5: By user, alphabet" +
+                                                      "ically, descending.",
+                                                      int, convert=True,
+                                                      num_min=1, num_max=5)],
+                    "duplicate": four.validate("Do you want to allow duplica" +
+                                       "te data?\n    1: Yes." +
+                                       "\n    2: No.", int, convert=True,
+                                               num_min=1, num_max=2)-1,
+                    "filter": four.validate("Is there anything you want to " +
+                                    "filter?\n    1: Yes." +
+                                    "\n    2: No.", int, convert=True,
+                                    num_min=1, num_max=2)-1}  # get user input
     if user_options["filter"] == 0:#remember to make "0" into 0
-        filter = [{0: "score = ?",
-                   1: "owner = ?",
-                   2: "owner != ?",
-                   3: "score != ?",
-                   4: "score > ?",
-                   5: "score < ?",
-                   6: "score >= ?",
-                   7: "score <= ?",
+        filter = [{1: "score = ?",
+                   2: "owner = ?",
+                   3: "owner != ?",
+                   4: "score != ?",
+                   5: "score > ?",
+                   6: "score < ?",
+                   7: "score >= ?",
+                   8: "score <= ?",
                    }[four.validate("Which comparison do you want?" +
-                           "\n    0: score =" +
-                           "\n    1: owner =" +
-                           "\n    2: owner is not =" +
-                           "\n    3: score is not =" +
-                           "\n    4: score >" +
-                           "\n    5: score <" +
-                           "\n    6: score >=" +
-                           "\n    7: score <="
-                           , int, convert=True, num_min=0, num_max=7)
-                     ], four.validate("What do you want to compare to?", str, string_blacklist=["~"])]#temp, will be comp 4 later. of which I am glad, because this is a hhhhaaaaaaaack. Oh, and don't forget to make "0" -> 0                                           
+                           "\n    1: score =" +
+                           "\n    2: owner =" +
+                           "\n    3: owner is not =" +
+                           "\n    4: score is not =" +
+                           "\n    5: score >" +
+                           "\n    6: score <" +
+                           "\n    7: score >=" +
+                           "\n    8: score <="
+                           , int, convert=True, num_min=1, num_max=8)
+                     ], four.validate("What do you want to compare to?", str,
+                                      string_blacklist=["~"])]#temp, will be comp 4 later. of which I am glad, because this is a hhhhaaaaaaaack. Oh, and don't forget to make "0" -> 0                                           
     query = "SELECT"
     if user_options["duplicate"] in [0]:  # they don't want duplicates
         query += " DISTINCT"  # the distinct clause ensures distinct records
@@ -85,21 +89,21 @@ def display(conn):
     else:  # sometimes the execute needs the extra arg of filter
         cursor.execute(query, (filter[1],))  # execute the query
     results = cursor.fetchall()  # save results
-    print("Score       Owner       Evidence Name       Evidence Owner       " +
-          "Evidence Type")  # headings
+    print("Score       Owner        Evidence Name                          Evidence Owner       " +
+          "                    Evidence Type")  # headings
     for row in results:  # iterate over results to extract one record at once
         output = "  "  # indentation
         output += str(row[0])  # score
         output += " "*(12-len(str(row[0])))  # column difference
         output += row[1][0].upper()+row[1][1:]  # name of user who owns score
-        output += " "*(12-len(str(row[1])))  # column difference
+        output += " "*(13-len(str(row[1])))  # column difference
         evidence_list = row[2].split("'")  # split the string
         for piece in range(1, len(evidence_list)-1):  # iterate over
             if evidence_list[piece] == ", ":  # builtin seperator! we can input
-                output += " "*(20-len(evidence_list[piece-1]))  # whitespace!
+                output += " "*(40-len(evidence_list[piece-1]))  # whitespace!
             elif evidence_list[piece] == "], [":  # new evidence piece
                 output += "\n"  # new line via newline
-                output += " "*26  # move to correct column (and indent)
+                output += " "*27  # move to correct column (and indent)
             else:  # we don't want our semantics
                 output += evidence_list[piece]  # add it to output
         print(output)  # just print it out

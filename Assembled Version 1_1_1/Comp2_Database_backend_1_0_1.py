@@ -1,25 +1,16 @@
 """
     Author: Mason Waters
-    Date: 10/9/20
+    Date: 3/11/20
     Desc: Database backend
-    Version: 0.1 (Trial number one)
-    Improvements over previous trials:
-        (Last version also had the improvement of the removal of the close
-        method being removed. Couldn't put it into changelog bc it would lead
-        to another version being created in gist ): )
-        Removal of os module usage \( ﾟヮﾟ)/\( ﾟヮﾟ)/\( ﾟヮﾟ)/
-        Simplification of the connection function
-        Some inconsistancies with print vs input("Prompt") dealt with, better
-        streamlined ui
-        More variations on input ("login", as opposed to just "l", and so on)
-    Disadvantages over previous trials:
-        Code is subtly less intuitive? (connection function is abstracted)
-        Connection function is slightly less safe. Efficiency is worth it.
+    Version: 1.0.0
+    Improvements:
+        Properly using component 4
 """
 
 # libraries and imports--------------------------------------------------------
 import sqlite3  # database manipulation module
 import hashlib  # secure hashing module
+import Comp4_Validation_1_0_0 as four  # validation and safe user input
 # end libraries and imports----------------------------------------------------
 
 # function definitions---------------------------------------------------------
@@ -38,7 +29,7 @@ def connect_to_database():
     conn = sqlite3.connect(DB_NAME)  # create database or connect to it
     conn.execute("""
 CREATE TABLE IF NOT EXISTS users(
-id DATATYPE INTEGER PRIMARY KEY ASC,
+id INTEGER PRIMARY KEY AUTOINCREMENT,
 username DATATYPE VARCHAR(20),
 password DATATYPE BLOB NOT NULL
 )""")  # create users table
@@ -61,20 +52,24 @@ def login(conn):
     """
     login_flag = True  # login loop
     while login_flag:  # begin login loop (so as we can get failability)
-        login_type_choice = input("""Would you like to:
+        login_type_choice = four.validate("""Would you like to:
                             Login as a [g]uest,
                             [L]ogin to a pre-existing account,
-                            Or create a [n]ew account?""").lower()  # ui
+                            Or create a [n]ew account?""", str,
+                                          string_whitelist=["g", "l", "L", "G",
+                                                            "n", "N"]
+                                          ).lower()  # ui
         if login_type_choice in ["g", "guest"]:  # they want to play as guest
             print("Welcome, guest. We hope you enjoy yourself")  # ui
             return 0  # 0 = no account / guest account
             login_flag = False  # this should never run, but just in case :)
         elif login_type_choice in ["l", "login"]:  # pre-existing account
-            username = input(
-                            "Please enter your username (not case-sensitive)"
-                            ).lower()  # get username
-            password = bytes(input("Please enter your password " +
-                                   "(case-sensitive)"), "utf-8")  # password!
+            username = four.validate(
+                            "Please enter your username (not case-sensitive)",
+                            str, string_blacklist=["~"]).lower()  # get username
+            password = bytes(four.validate("Please enter your password " +
+                                           "(case-sensitive)", str,
+                                           string_blacklist=["~"]), "utf-8")
             password_hash = hashlib.sha224(password).hexdigest()  # hash it
             cursor = conn.cursor()  # for interacting with the database
             cursor.execute("""
@@ -95,8 +90,9 @@ def login(conn):
                 print("Password does not match username, try again.")  # ui
                 continue  # give the user opportunity to correct typos
         elif login_type_choice in ["n", "new"]:  # user creating new account
-            username = input("Enter your new username (not case sensitive): ")\
-                       .lower()
+            username = four.validate("Enter your new username (not case sens" +
+                                     "itive): ", str, max_length=12,
+                                     string_blacklist=["~"]).lower()
             cursor = conn.cursor()  # need this to interact with database
             cursor.execute("""
             SELECT username
@@ -107,13 +103,16 @@ def login(conn):
             if prior_usernames != []:  # cursor returns [] if no results
                 print("Sorry! That username has been taken")  # ui
                 continue  # return to start of loop (give user another chance)
-            check = input("Please enter the username again, to " +  # stop typo
-                          "avoid typos and whatnot").lower()
+            check = four.validate("Please enter the username again, to avoid" +
+                                  " typos and whatnot", str,
+                                  string_blacklist=["~"]).lower()  # no typo
             if check != username:  # there was a typo somewhere
                 print("Oops! Those don't match. Please try again")  # ui
                 continue
-            password = input("Please enter your desired password:")  # reusing
-            check = input("Please reenter your desired password:")  # variables
+            password = four.validate("Please enter your desired password:",
+                                     str, string_blacklist=["~"])  # reusing
+            check = four.validate("Please reenter your desired password:",
+                                  str, string_blacklist=["~"])  # variables
             if password != check:  # these should match, else they've made typo
                 print("Oops! Those do not match. Please try again")  # ui
                 continue  # yeaaaaa. this sends them back to the top. bad.
@@ -172,7 +171,9 @@ if __name__ == "__main__":  # is this code being called from here?
 #INSERT INTO users VALUES (?,?,?)""", test_data)
     #conn.commit()  # saaaaaaaave teeeeeeest daaaaataaaaa
     cursor.execute("SELECT * FROM users")
-    print("Database:\n ", cursor.fetchall())
+    print("Database (users):\n ", cursor.fetchall())
+    cursor.execute("SELECT * FROM scores")
+    print("Database (scores):\n ", cursor.fetchall())
     account = login(conn)
     print(conn)
     conn.close()  # this replaces close_database

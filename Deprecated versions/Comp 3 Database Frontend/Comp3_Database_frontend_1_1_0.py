@@ -1,12 +1,11 @@
 """
     Author: Mason Waters
-    Date: 3/11/20
+    Date: 9/11/20
     Desc: Database frontend, handles display and whatnot
-    Version: 1.0.0
-    Note: This version is for integration with other components
+    Version: 1.1.0
     Improvements:
-        Uses comp 4 now. Saaafe
-
+        This version seeks to add the capacity to combine queries via logical
+        operators
 """
 
 # libraries and imports--------------------------------------------------------
@@ -28,7 +27,7 @@ def display(conn):
     Returns/Yields:
         None
     """
-    filter = None  # this would else only be init-ed conditionally
+    filter = []  # this would else only be init-ed conditionally
     user_options = {"sort": {0: None,
                              1: "score ASC",
                              2: "score DESC",
@@ -69,21 +68,58 @@ def display(conn):
                            "\n    6: score >=" +
                            "\n    7: score <="
                            , int, convert=True, num_min=0, num_max=7)
-                     ], four.validate("What do you want to compare to?", str, string_blacklist=["~"])]#temp, will be comp 4 later. of which I am glad, because this is a hhhhaaaaaaaack. Oh, and don't forget to make "0" -> 0                                           
+                     ], four.validate("What do you want to compare to?", str)]
+# select.
+        if four.validate("Would you like to combine that with another filter? [y/n]", str, max_length=3, min_length=1) in ["y", "yes"]:  # do they want to add another condition
+            print("in conditional")#temp
+            conjunction = {"0": " AND",
+                           "1": " OR",
+                           "2": " NOT AND",
+                           "3": " NOT OR"}[four.validate("What relationship would you like two queries to have?\n    0: AND\n    1: OR\n    2: NOT AND\n    3: NOT OR", str)]  # which relationship do they want
+            filter[0] += conjunction  # add it to the query
+            secondary_filter = [{0: "score = ?",
+                   1: "owner = ?",
+                   2: "owner != ?",
+                   3: "score != ?",
+                   4: "score > ?",
+                   5: "score < ?",
+                   6: "score >= ?",
+                   7: "score <= ?",
+                   }[four.validate("Which comparison do you want?" +
+                           "\n    0: score =" +
+                           "\n    1: owner =" +
+                           "\n    2: owner is not =" +
+                           "\n    3: score is not =" +
+                           "\n    4: score >" +
+                           "\n    5: score <" +
+                           "\n    6: score >=" +
+                           "\n    7: score <="
+                           , int, convert=True, num_min=0, num_max=7)
+                     ], four.validate("What do you want to compare to?", str)]
+            filter[0] += " " + secondary_filter[0]  # add it in
+            filter.append(secondary_filter[1])  # add variable data
+        else:
+            print("not in conditional")#temp
     query = "SELECT"
     if user_options["duplicate"] in [0]:  # they don't want duplicates
         query += " DISTINCT"  # the distinct clause ensures distinct records
     query += (" scores.score, users.username, scores.evidence " +
               "FROM scores INNER JOIN users ON users.id = scores.owner")
-    if filter is not None:  # sometimes we don't need a where clause
+    if filter != []:  # sometimes we don't need a where clause
         query += " WHERE " + filter[0]  # sometimes we do need a where clause
     if user_options["sort"] is not None:  # sometimes we don't need an order by
         query += " ORDER BY " + str(user_options["sort"])  # sometimes we do
     cursor = conn.cursor()  # need cursor object to interact with db
-    if filter is None:  # sometimes the execute doesn't need the extra arg
+    if filter == []:  # sometimes the execute doesn't need the extra arg
         cursor.execute(query)  # execute the query
-    else:  # sometimes the execute needs the extra arg of filter
+        print("Just executed query: ", query)#temp
+    elif len(filter) == 2:  # sometimes the execute needs single extra arg
+        print("In single arg conditional")#temp
+        print("query: ", query, "\nfilter: ", filter)
         cursor.execute(query, (filter[1],))  # execute the query
+    elif len(filter) == 3:  # sometimes it needs two extra args
+        print("In double arg conditional")#temp
+        cursor.execute(query, (filter[1], filter[2]))  # execute query
     results = cursor.fetchall()  # save results
     print("Score       Owner       Evidence Name       Evidence Owner       " +
           "Evidence Type")  # headings

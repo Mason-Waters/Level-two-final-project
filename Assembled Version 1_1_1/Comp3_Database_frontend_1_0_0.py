@@ -33,23 +33,27 @@ def display(conn):
                              1: "score ASC",
                              2: "score DESC",
                              3: "owner ASC",
-                             4: "owner DESC"}[four.validate("How do you want to" +
-                                                      " sort the scores?" +
-                                                      "\n    0: No sorting," +
-                                                      "just raw data.\n    1" +
-                                                      ": By score, ascending" +
-                                                      ".\n    2: By score," +
-                                                      " descending.\n    3: " +
-                                                      "By user, alphabetical" +
-                                                      "ly, ascending.\n    4" +
+                             4: "owner DESC"}[four.validate("How do you want to"
+                                                            + " sort the sco" +
+                                                      "res?\n    0: No sorti" +
+                                                      "ng, just raw data.\n " +
+                                                      "   1: By score, ascen" +
+                                                      "ding.\n    2: By scor" +
+                                                      "e, descending.\n    3" +
                                                       ": By user, alphabetic" +
-                                                      "ally, descending.", int, convert=True, num_min=0, num_max=4)],
-                    "duplicate": four.validate("Do you want to allow duplicate data?" +
-                                       "\n    0: Yes." +
-                                       "\n    1: No.", int, convert=True, num_min=0, num_max=1),
-                    "filter": four.validate("Is there anything you want to filter?" +
-                                    "\n    0: Yes." +
-                                    "\n    1: No.", int, convert=True, num_min=0, num_max=1)}  # get user input
+                                                      "ally, ascending.\n   " +
+                                                      " 4: By user, alphabet" +
+                                                      "ically, descending.",
+                                                      int, convert=True,
+                                                      num_min=0, num_max=4)],
+                    "duplicate": four.validate("Do you want to allow duplica" +
+                                       "te data?\n    0: Yes." +
+                                       "\n    1: No.", int, convert=True,
+                                               num_min=0, num_max=1),
+                    "filter": four.validate("Is there anything you want to " +
+                                    "filter?\n    0: Yes." +
+                                    "\n    1: No.", int, convert=True,
+                                    num_min=0, num_max=1)}  # get user input
     if user_options["filter"] == 0:#remember to make "0" into 0
         filter = [{0: "score = ?",
                    1: "owner = ?",
@@ -69,7 +73,8 @@ def display(conn):
                            "\n    6: score >=" +
                            "\n    7: score <="
                            , int, convert=True, num_min=0, num_max=7)
-                     ], four.validate("What do you want to compare to?", str, string_blacklist=["~"])]#temp, will be comp 4 later. of which I am glad, because this is a hhhhaaaaaaaack. Oh, and don't forget to make "0" -> 0                                           
+                     ], four.validate("What do you want to compare to?", str,
+                                      string_blacklist=["~"])]#temp, will be comp 4 later. of which I am glad, because this is a hhhhaaaaaaaack. Oh, and don't forget to make "0" -> 0                                           
     query = "SELECT"
     if user_options["duplicate"] in [0]:  # they don't want duplicates
         query += " DISTINCT"  # the distinct clause ensures distinct records
